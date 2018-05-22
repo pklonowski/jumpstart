@@ -45,7 +45,7 @@ def add_gems
   gem 'whenever', require: false
   gem 'friendly_id', '~> 5.1.0'
   gem 'sitemap_generator', '~> 6.0', '>= 6.0.1'
-#  gem 'simple_form', '~> 4.0'
+  gem 'simple_form', '~> 4.0'
 end
 
 def set_application_name
@@ -54,6 +54,10 @@ def set_application_name
 
   # Announce the user where he can change the application name in the future.
   puts "You can change application name inside: ./config/application.rb"
+end
+
+def add_simpleform
+  generate "simple_form:install --bootstrap"
 end
 
 def add_users
@@ -219,6 +223,7 @@ add_gems
 after_bundle do
   set_application_name
   stop_spring
+  add_simpleform
   add_users
   add_bootstrap
   add_sidekiq
