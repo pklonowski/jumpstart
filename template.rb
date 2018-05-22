@@ -46,6 +46,10 @@ def add_gems
   gem 'friendly_id', '~> 5.1.0'
   gem 'sitemap_generator', '~> 6.0', '>= 6.0.1'
   gem 'simple_form', '~> 4.0'
+  gem_group :development, :test do
+    gem 'better_errors', '~> 2.4'
+    #gem 'binding_of_caller' # This doesn't work as of 2018-05-22
+  end
 end
 
 def set_application_name
@@ -223,6 +227,7 @@ add_gems
 after_bundle do
   set_application_name
   stop_spring
+
   add_simpleform
   add_users
   add_bootstrap
