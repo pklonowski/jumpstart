@@ -32,19 +32,20 @@ def add_gems
   gem 'devise-bootstrapped', github: 'excid3/devise-bootstrapped', branch: 'bootstrap4'
   gem 'devise_masquerade', '~> 0.6.0'
   gem 'font-awesome-sass', '~> 4.7'
-  gem 'gravatar_image_tag', github: 'mdeering/gravatar_image_tag'
+#  gem 'gravatar_image_tag', github: 'mdeering/gravatar_image_tag'
   gem 'jquery-rails', '~> 4.3.1'
   gem 'bootstrap', '~> 4.0.0.beta'
   gem 'mini_magick', '~> 4.8'
-  gem 'webpacker', '~> 3.4'
+#  gem 'webpacker', '~> 3.4'
   gem 'sidekiq', '~> 5.0'
-  gem 'foreman', '~> 0.84.0'
+#  gem 'foreman', '~> 0.84.0'
   gem 'omniauth-facebook', '~> 4.0'
   gem 'omniauth-twitter', '~> 1.4'
   gem 'omniauth-github', '~> 1.3'
   gem 'whenever', require: false
   gem 'friendly_id', '~> 5.1.0'
   gem 'sitemap_generator', '~> 6.0', '>= 6.0.1'
+#  gem 'simple_form', '~> 4.0'
 end
 
 def set_application_name
@@ -129,7 +130,7 @@ def add_sidekiq
     after: "Rails.application.routes.draw do\n"
 end
 
-def add_foreman
+def add_procfile
   copy_file "Procfile"
 end
 
@@ -221,8 +222,8 @@ after_bundle do
   add_users
   add_bootstrap
   add_sidekiq
-  add_foreman
-  add_webpack
+  add_procfile
+#  add_webpack
   add_announcements
   add_notifications
   add_multiple_authentication
