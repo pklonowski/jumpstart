@@ -46,9 +46,13 @@ def add_gems
   gem 'friendly_id', '~> 5.1.0'
   gem 'sitemap_generator', '~> 6.0', '>= 6.0.1'
   gem 'simple_form', '~> 4.0'
-  gem_group :development, :test do
+  gem_group :development do
     gem 'better_errors', '~> 2.4'
     #gem 'binding_of_caller' # This doesn't work as of 2018-05-22
+    gem 'guard', '~> 2.14', '>= 2.14.2'
+    gem 'guard-rails', '~> 0.8.1', require: false
+    gem 'guard-livereload', '~> 2.5', '>= 2.5.2', require: false
+    gem 'guard-puma', '~> 0.5.0', require: false
   end
 end
 
@@ -140,6 +144,7 @@ end
 
 def add_procfile
   copy_file "Procfile"
+  copy_file "Procfile.dev"
 end
 
 def add_announcements
@@ -219,6 +224,14 @@ def add_sitemap
   rails_command "sitemap:install"
 end
 
+def add_guard
+  run "guard init"
+  run "guard init rails"
+  run "guard init livereload"
+  run "guard init puma"
+end
+
+
 # Main setup
 add_template_repository_to_source_path
 
@@ -252,6 +265,7 @@ after_bundle do
 
   add_sitemap
 
+  add_guard
 
   git :init
   git add: "."
