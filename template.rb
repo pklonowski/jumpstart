@@ -49,10 +49,18 @@ def add_gems
   gem_group :development do
     gem 'better_errors', '~> 2.4'
     #gem 'binding_of_caller' # This doesn't work as of 2018-05-22
+    gem 'web-console'
     gem 'guard', '~> 2.14', '>= 2.14.2'
     gem 'guard-rails', '~> 0.8.1', require: false
     gem 'guard-livereload', '~> 2.5', '>= 2.5.2', require: false
     gem 'guard-puma', '~> 0.5.0', require: false
+
+    gem 'annotate'
+    gem 'awesome_print'
+    gem 'bullet'
+    gem 'rails-erd'
+    gem 'table_print'
+    gem 'xray-rails'
   end
 end
 
