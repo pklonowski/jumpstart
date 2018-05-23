@@ -1,6 +1,70 @@
 require "fileutils"
 require "shellwords"
 
+RAILS_REQUIREMENT = ">= 5.2.0.rc1"
+
+def ask_optional_options
+  @erd = yes?('Do you want to generate entity-relationship diagrams for Rails applications (GraphViz required)?')
+end
+
+# Main setup
+def apply_template!
+  assert_minimum_rails_version
+  add_template_repository_to_source_path
+  
+  ask_optional_options
+
+  add_gems
+  
+  after_bundle do
+    set_application_name
+    #stop_spring
+
+    add_simpleform
+    add_users
+    add_bootstrap
+    add_sidekiq
+    add_procfile
+  #  add_webpack
+    add_announcements
+    add_notifications
+    add_multiple_authentication
+    add_friendly_id
+    add_annotate
+    add_bullet
+    add_erd if @erd
+    
+    copy_templates
+  
+    # Migrate
+    rails_command "db:create"
+    rails_command "db:migrate"
+  
+    # Migrations must be done before this
+    add_administrate
+  
+    add_whenever
+  
+    add_sitemap
+  
+    add_guard
+  
+    git :init
+    git add: "."
+    git commit: %Q{ -m 'Initial commit' }
+  end
+end
+
+def assert_minimum_rails_version
+  requirement = Gem::Requirement.new(RAILS_REQUIREMENT)
+  rails_version = Gem::Version.new(Rails::VERSION::STRING)
+  return if requirement.satisfied_by?(rails_version)
+
+  prompt = "This template requires Rails #{RAILS_REQUIREMENT}. "\
+           "You are using #{rails_version}. Continue anyway?"
+  exit 1 if no?(prompt)
+end
+
 # Copied from: https://github.com/mattbrictson/rails-template
 # Add this template directory to source_paths so that Thor actions like
 # copy_file and template resolve against our source files. If this file was
@@ -22,6 +86,14 @@ def add_template_repository_to_source_path
     end
   else
     source_paths.unshift(File.dirname(__FILE__))
+  end
+end
+
+def install_optional_gems
+  if @erd
+    gem_group :development do
+      gem 'rails-erd' #, require: false
+    end
   end
 end
 
@@ -51,17 +123,19 @@ def add_gems
     #gem 'binding_of_caller' # This doesn't work as of 2018-05-22
     gem 'web-console'
     gem 'guard', '~> 2.14', '>= 2.14.2'
-    gem 'guard-rails', '~> 0.8.1', require: false
-    gem 'guard-livereload', '~> 2.5', '>= 2.5.2', require: false
-    gem 'guard-puma', '~> 0.5.0', require: false
+    gem 'guard-rails', '~> 0.8.1'
+    gem 'guard-livereload', '~> 2.5', '>= 2.5.2'
+    gem 'guard-puma', '~> 0.5.0'
 
     gem 'annotate'
-    gem 'awesome_print'
+    gem 'spirit_hands' # includes gem 'awesome_print' and others
     gem 'bullet'
-    gem 'rails-erd'
-    gem 'table_print'
-    gem 'xray-rails'
+    #gem 'rails-erd' #, require: false
+    #gem 'table_print'
+    #gem 'xray-rails'
   end
+  
+  install_optional_gems
 end
 
 def set_application_name
@@ -70,6 +144,11 @@ def set_application_name
 
   # Announce the user where he can change the application name in the future.
   puts "You can change application name inside: ./config/application.rb"
+end
+
+def add_devise
+  insert_into_file 'Gemfile', "gem 'rails'\n", after: /'friendly_id'\n/
+  insert_into_file 'Gemfile', "gem 'devise-i18n'\n", after: /'friendly_id'\n/
 end
 
 def add_simpleform
@@ -239,43 +318,24 @@ def add_guard
   run "guard init puma"
 end
 
-
-# Main setup
-add_template_repository_to_source_path
-
-add_gems
-
-after_bundle do
-  set_application_name
-  stop_spring
-
-  add_simpleform
-  add_users
-  add_bootstrap
-  add_sidekiq
-  add_procfile
-#  add_webpack
-  add_announcements
-  add_notifications
-  add_multiple_authentication
-  add_friendly_id
-  
-  copy_templates
-
-  # Migrate
-  rails_command "db:create"
-  rails_command "db:migrate"
-
-  # Migrations must be done before this
-  add_administrate
-
-  add_whenever
-
-  add_sitemap
-
-  add_guard
-
-  git :init
-  git add: "."
-  git commit: %Q{ -m 'Initial commit' }
+def add_annotate
+  generate "annotate:install"
 end
+
+def add_bullet
+  # generate "bullet:install" # breaks the development.rb file!
+  
+  environment "config.after_initialize do\n  Bullet.enable = true\n  #Bullet.alert = true  # pop up a JavaScript alert in the browser\n  Bullet.bullet_logger = true\n  Bullet.console = true\n  Bullet.rails_logger = true # add warnings directly to the Rails log\n  Bullet.add_footer = true\nend\n\n",
+    env: 'development'
+end
+
+def add_erd
+  generate "erd:install"
+  append_to_file '.gitignore', 'erd.pdf'
+end
+
+
+run 'pgrep spring | xargs kill -9'
+
+# launch the main template creation method
+apply_template!
