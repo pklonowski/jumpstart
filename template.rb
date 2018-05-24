@@ -4,18 +4,18 @@ require "shellwords"
 RAILS_REQUIREMENT = ">= 5.2.0.rc1"
 
 def ask_optional_options
-  @erd = yes?('Do you want to generate entity-relationship diagrams for Rails applications (GraphViz required)?')
+  @erd = yes?('Do you want to generate entity-relationship diagrams (GraphViz required)?')
 end
 
-# Main setup
 def apply_template!
   assert_minimum_rails_version
   add_template_repository_to_source_path
-  
+
   ask_optional_options
 
   add_gems
-  
+
+
   after_bundle do
     set_application_name
     #stop_spring
@@ -33,22 +33,22 @@ def apply_template!
     add_annotate
     add_bullet
     add_erd if @erd
-    
+
     copy_templates
-  
+
     # Migrate
     rails_command "db:create"
     rails_command "db:migrate"
-  
+
     # Migrations must be done before this
     add_administrate
-  
+
     add_whenever
-  
+
     add_sitemap
-  
+
     add_guard
-  
+
     git :init
     git add: "."
     git commit: %Q{ -m 'Initial commit' }
@@ -118,6 +118,7 @@ def add_gems
   gem 'friendly_id', '~> 5.1.0'
   gem 'sitemap_generator', '~> 6.0', '>= 6.0.1'
   gem 'simple_form', '~> 4.0'
+
   gem_group :development do
     gem 'better_errors', '~> 2.4'
     #gem 'binding_of_caller' # This doesn't work as of 2018-05-22
@@ -130,12 +131,14 @@ def add_gems
     gem 'annotate'
     gem 'spirit_hands' # includes gem 'awesome_print' and others
     gem 'bullet'
-    #gem 'rails-erd' #, require: false
-    #gem 'table_print'
-    #gem 'xray-rails'
+    gem 'table_print'
+    gem 'xray-rails', :github => 'brentd/xray-rails' , branch: 'master', :ref => 'de5212c'
+    #gem 'jquery-rails' # needed by xray-rails (already loaded above)
+
+    gem 'rails-erd' if @erd
   end
-  
-  install_optional_gems
+
+  #install_optional_gems
 end
 
 def set_application_name
@@ -324,10 +327,15 @@ end
 
 def add_bullet
   # generate "bullet:install" # breaks the development.rb file!
-  
+
   environment "config.after_initialize do\n  Bullet.enable = true\n  #Bullet.alert = true  # pop up a JavaScript alert in the browser\n  Bullet.bullet_logger = true\n  Bullet.console = true\n  Bullet.rails_logger = true # add warnings directly to the Rails log\n  Bullet.add_footer = true\nend\n\n",
     env: 'development'
 end
+
+#def add_xray_rails
+  # may need to add "//= require jquery" to application.js
+  # config.assets.debug = true (Rails' default) must be set in development.rb.
+#end
 
 def add_erd
   generate "erd:install"
