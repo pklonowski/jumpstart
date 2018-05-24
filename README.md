@@ -28,3 +28,8 @@ spring stop
 cd ..
 rm -rf myapp
 ```
+
+#### References
+
+1. [excid3/jumpstart](https://github.com/excid3/jumpstart)
+2. [damienlethiec/modern-rails-template](https://github.com/damienlethiec/modern-rails-template)
