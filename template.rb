@@ -138,6 +138,10 @@ def add_gems
     gem 'rails-erd' if @erd
   end
 
+  gem_group :test do
+    gem 'spring-commands-rspec'
+  end
+
   #install_optional_gems
 end
 
